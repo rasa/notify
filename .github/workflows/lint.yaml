@@ -1,0 +1,62 @@
+name: lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      disable:
+        description: "List of linters to disable (or `all`)"
+        type: string
+        default: ""
+      enable:
+        description: "List of linters to enable (or `all`)"
+        type: string
+        default: ""
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+
+      - name: Run linter
+        run: |
+          disable="${{ inputs.disable }}"
+          enable="${{ inputs.enable }}"
+          options=()
+          if [[ -n "${disable}" ]]; then
+            if [[ "${disable}" =~ ^[Aa][Ll][Ll]$ ]]; then
+              options+=("--disable-all")
+            else
+              options+=("--disable")
+              options+=("${disable}")
+            fi
+          fi
+          if [[ -n "${enable}" ]]; then
+            if [[ "${enable}" =~ ^[Aa][Ll][Ll]$ ]]; then
+              options+=("--enable-all")
+            else
+              options+=("--enable")
+              options+=("${enable}")
+            fi
+          fi
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+          golangci-lint run --config .golangci.yml "${options[@]}"

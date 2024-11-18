@@ -73,6 +73,7 @@ func ExampleStop() {
 				}
 			case <-t:
 				return false
+			default:
 			}
 		}
 	}

@@ -1,0 +1,97 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      notify_debug:
+        description: "Enable debug logging"
+        type: choice
+        options:
+          - "No"
+          - "Yes"
+        default: "No"
+      tags:
+        description: "Go tags"
+        type: string
+        default: ""
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - ubuntu-latest
+          - ubuntu-22.04
+          - ubuntu-20.04
+          - windows-latest
+          - windows-2019
+          - macos-15
+          - macos-14
+          - macos-13
+          - macos-12
+        go:
+          - "~1.22.9"
+          - "~1.23.3"
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: If Windows, set git to use LF
+        if: contains(matrix.runner, 'windows')
+        # Without this, the Windows checkout will happen with CRLF line
+        # endings, which is fine for the source code but messes up tests
+        # that depend on data on disk being as expected. Ideally, those
+        # tests should be fixed, but not today.
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      # - name: If macOS, use kqueue tag
+      #   if: contains(matrix.runner, 'macos')
+      #   run: |
+      #     echo 'GOTAGS="kqueue"' >> "${GITHUB_ENV}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+
+      # - name: Setup Golang with cache
+      #   uses: magnetikonline/action-golang-cache@v5
+      #   with:
+      #     go-version: ${{ matrix.go }}
+
+      - name: Install dependencies
+        run: |
+          go get -v ./...
+
+      - name: Run tests
+        shell: bash
+        continue-on-error: true
+        run: |
+          go version
+          if [[ "${{ inputs.notify_debug }}" =~ Yes ]]; then
+            export NOTIFY_DEBUG=1
+          fi
+          export TAGS="${{ inputs.tags }}"
+          if [[ "${{ matrix.runner }}" =~ macos* ]]; then
+            export TAGS+=" kqueue"
+          fi
+          go test -v -tags "${TAGS}" ./...
