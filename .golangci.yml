@@ -1,0 +1,48 @@
+---
+linters-settings:
+  maligned:
+    suggest-new: true
+
+linters:
+  enable-all: true
+  disable:
+    # disabled in https://github.com/syncthing/syncthing/blob/4b815fc08/.golangci.yml#L7
+    - depguard
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - gocyclo
+    - godox
+    - gofmt
+    - goimports
+    - lll
+    # - scopelint
+    - wsl
+
+    # deprecated:
+    - exportloopref
+
+    # increase signal to noise:
+    # calculated cyclomatic complexity for function AddDir is 12, max is 10 (cyclop)
+    - cyclop
+    # Error return value of `...` is not checked (errcheck)
+    - errcheck
+    # Comment should end in a period (godot)
+    - godot
+    # File is not `gofumpt`-ed (gofumpt)
+    - gofumpt
+    # Function name: TestRecursiveTree, Cyclomatic Complexity: 1, Halstead Volume: 6154.07, Maintainability Index: 16 (maintidx)
+    - maintidx
+    # Magic number: ..., in <argument> detected (mnd)
+    - mnd
+    # return with no blank line before (nlreturn)
+    - nlreturn
+    # Function TestNotifyExample missing the call to method parallel (paralleltest)
+    - paralleltest
+    # missing output for example, go test can't validate it (testableexamples)
+    - testableexamples
+    # package should be `notify_test` instead of `notify` (testpackage)
+    - testpackage
+    # variable name 'ei' is too short for the scope of its usage (varnamelen)
+    - varnamelen

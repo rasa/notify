@@ -143,6 +143,8 @@ func TestRenameInRoot(t *testing.T) {
 			t.Log(ev.Path())
 		case <-timeout:
 			t.Fatal("timed out before receiving event")
+		default:
+			time.Sleep(50 * time.Millisecond)
 		}
 	}
 }
@@ -182,6 +184,8 @@ func TestRecreated(t *testing.T) {
 				}
 			case <-timeout:
 				t.Fatal("timed out before receiving event")
+			default:
+				time.Sleep(50 * time.Millisecond)
 			}
 		}
 	}
@@ -209,9 +213,9 @@ func TestRecreated(t *testing.T) {
 	checkCreated()
 }
 
-func mustT(t testing.TB, err error) {
-	t.Helper()
+func mustT(tb testing.TB, err error) {
+	tb.Helper()
 	if err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 }

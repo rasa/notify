@@ -156,6 +156,7 @@ type W struct {
 }
 
 func newWatcherTest(t *testing.T, tree string) *W {
+	t.Helper()
 	root, err := tmptree("", filepath.FromSlash(tree))
 	if err != nil {
 		t.Fatalf(`tmptree("", %q)=%v`, tree, err)
@@ -172,6 +173,7 @@ func newWatcherTest(t *testing.T, tree string) *W {
 }
 
 func NewWatcherTest(t *testing.T, tree string, events ...Event) *W {
+	t.Helper()
 	w := newWatcherTest(t, tree)
 	if len(events) == 0 {
 		events = []Event{Create, Remove, Write, Rename}
@@ -684,6 +686,7 @@ type N struct {
 }
 
 func newN(t *testing.T, tree string) *N {
+	t.Helper()
 	n := &N{
 		t: t,
 		w: newWatcherTest(t, tree),
@@ -697,6 +700,7 @@ func newN(t *testing.T, tree string) *N {
 }
 
 func newTreeN(t *testing.T, tree string) *N {
+	t.Helper()
 	c := make(chan EventInfo, buffer)
 	n := newN(t, tree)
 	n.spy = &Spy{}
@@ -707,6 +711,7 @@ func newTreeN(t *testing.T, tree string) *N {
 }
 
 func NewNotifyTest(t *testing.T, tree string) *N {
+	t.Helper()
 	n := newN(t, tree)
 	if rw, ok := n.w.watcher().(recursiveWatcher); ok {
 		n.tree = newRecursiveTree(rw, n.w.c())
@@ -717,18 +722,21 @@ func NewNotifyTest(t *testing.T, tree string) *N {
 }
 
 func NewRecursiveTreeTest(t *testing.T, tree string) *N {
+	t.Helper()
 	n := newTreeN(t, tree)
 	n.tree = newRecursiveTree(n.spy, n.c)
 	return n
 }
 
 func NewNonrecursiveTreeTest(t *testing.T, tree string) *N {
+	t.Helper()
 	n := newTreeN(t, tree)
 	n.tree = newNonrecursiveTree(n.spy, n.c, nil)
 	return n
 }
 
 func NewNonrecursiveTreeTestC(t *testing.T, tree string) (*N, chan EventInfo) {
+	t.Helper()
 	rec := make(chan EventInfo, buffer)
 	recinternal := make(chan EventInfo, buffer)
 	recuser := make(chan EventInfo, buffer)
