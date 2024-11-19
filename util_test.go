@@ -19,7 +19,7 @@ func testCanonical(t *testing.T, cases []caseCanonical) {
 	for i, cas := range cases {
 		full, err := canonical(cas.path)
 		if err != nil {
-			t.Errorf("want err=nil; got %v (i=%d)", err, i)
+			t.Errorf("want err=nil; got %v (i=%d) (cas.path=%q)", err, i, cas.path)
 			continue
 		}
 		if full != cas.full {
