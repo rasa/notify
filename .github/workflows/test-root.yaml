@@ -1,4 +1,4 @@
-name: test
+name: test-root
 
 on:
   push:
@@ -26,19 +26,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: test
+  test-root:
+    name: test-root
     strategy:
       fail-fast: false
       matrix:
         runner:
-          - ubuntu-latest
-          - ubuntu-22.04
+          # - ubuntu-latest
+          # - ubuntu-22.04
           # - ubuntu-20.04
           - windows-latest
-          - windows-2019
-          - macos-15
-          - macos-14
+          # - windows-2019
+          # - macos-15
+          # - macos-14
           # - macos-13
           # - macos-12
         go:
@@ -82,16 +82,15 @@ jobs:
         run: |
           go get -v ./...
 
-      - name: Run tests
-        shell: bash
+      - name: Run NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR test on Windows
+        if: contains(matrix.runner, 'windows')
+        shell: cmd
         # continue-on-error: true
         run: |
           go version
-          if [[ "${{ inputs.notify_debug }}" =~ Yes ]]; then
-            export NOTIFY_DEBUG=1
-          fi
-          export TAGS="${{ inputs.tags }}"
-          if [[ "${{ matrix.runner }}" =~ macos* ]]; then
-            export TAGS+=" kqueue"
-          fi
-          go test -v -tags "${TAGS}" ./...
+          if "${{ inputs.notify_debug }}" == "Yes" set NOTIFY_DEBUG=1
+          if not "${{ inputs.tags }}" == "" set "TAGS=${{ inputs.tags }}"
+          mkdir tmp
+          subst.exe Z: "%CD%\tmp"
+          set NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR=Z:\
+          go test -v -tags "%TAGS%" ./...
