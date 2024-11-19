@@ -82,15 +82,15 @@ jobs:
               env | sort
               ls -al ~
 
-              url=https://go.dev/dl/go${{ matrix.go }}.src.tar.gz
+              arch="${{ matrix.os.architecture }}"
+              if [[ "${arch}" =~ (x86-64|x64) ]]; then
+                arch=amd64
+              fi
+              url="https://go.dev/dl/go${{ matrix.go }}.${{ matrix.os.name }}-${arch}.tar.gz"
               gz="$(basename "${url}")"
               curl -sOL "${url}"
-              mkdir tmp
-              tar -C tmp -xzf "${gz}"
-              pushd tmp/go/src
-              ./all.bash
-              popd
-              export PATH="${HOME}/go/bin:${PATH}"
+              tar -C /usr/local -xzf "${gz}"
+              export PATH="/usr/local/go/bin:${PATH}"
 
               go version
               go env
