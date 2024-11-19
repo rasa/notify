@@ -2,19 +2,19 @@
 // Use of this source code is governed by the MIT license that can be
 // found in the LICENSE file.
 
+//go:build !windows
 // +build !windows
 
 package notify
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
 func tmpfile(s string) (string, error) {
-	f, err := ioutil.TempFile(filepath.Split(s))
+	f, err := tempFile(filepath.Split(s)) // was os.CreateTemp()
 	if err != nil {
 		return "", err
 	}
@@ -62,9 +62,15 @@ func TestCanonical(t *testing.T) {
 		{tdsym, td},
 		{filepath.Join(wdsym, "notify.go"), filepath.Join(wd, "notify.go")},
 		{filepath.Join(tdsym, "vfs.txt"), vfstxt},
-		{filepath.Join(wdsym, filepath.Base(tdsym), "vfs.txt"), vfstxt},
 	}
 	testCanonical(t, cases[:])
+
+	if !usingEraseDir() {
+		cases2 := [...]caseCanonical{
+			{filepath.Join(wdsym, filepath.Base(tdsym), "vfs.txt"), vfstxt},
+		}
+		testCanonical(t, cases2[:])
+	}
 }
 
 func TestCanonicalCircular(t *testing.T) {
@@ -95,7 +101,9 @@ func TestCanonicalCircular(t *testing.T) {
 
 // issue #83
 func TestCanonical_RelativeSymlink(t *testing.T) {
-	dir, err := ioutil.TempDir(wd, "")
+	// was: ioutil.TempDir() (syncthing)
+	// was: os.MkdirTemp() (rjeczalik)
+	dir, err := tempDir(wd, "")
 	if err != nil {
 		t.Fatalf("TempDir()=%v", err)
 	}
@@ -105,7 +113,7 @@ func TestCanonical_RelativeSymlink(t *testing.T) {
 		rel      = filepath.FromSlash("x/y/z/../z/../z")
 		chdir    = filepath.Join(dir, filepath.FromSlash("a/b"))
 	)
-	defer os.RemoveAll(dir)
+	// handled by setup/teardown now: defer os.RemoveAll(dir)
 	if err = os.MkdirAll(realpath, 0755); err != nil {
 		t.Fatalf("MkdirAll()=%v", err)
 	}

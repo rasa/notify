@@ -2,6 +2,7 @@
 // Use of this source code is governed by the MIT license that can be
 // found in the LICENSE file.
 
+//go:build darwin || linux || freebsd || dragonfly || netbsd || openbsd || windows || solaris
 // +build darwin linux freebsd dragonfly netbsd openbsd windows solaris
 
 package notify
@@ -39,6 +40,8 @@ func TestWatcher(t *testing.T) {
 // is removed. This is detected and the watch removed. Then the directory is
 // restored and a new watch set up.
 func TestStopPathNotExists(t *testing.T) {
+	useEraseDirIfSet(false)
+
 	w := NewWatcherTest(t, "testdata/vfs.txt")
 	defer w.Close()
 

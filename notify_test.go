@@ -2,6 +2,7 @@
 // Use of this source code is governed by the MIT license that can be
 // found in the LICENSE file.
 
+//go:build darwin || linux || freebsd || dragonfly || netbsd || openbsd || windows || solaris
 // +build darwin linux freebsd dragonfly netbsd openbsd windows solaris
 
 package notify
@@ -109,11 +110,13 @@ func TestStop(t *testing.T) {
 }
 
 func TestRenameInRoot(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "notify_test-")
+	// was: ioutil.TempDir() (syncthing)
+	// was: t.TempDir() (rjeczalik)
+	tmpDir, err := tempDir("", "notify_test-")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	// defer os.RemoveAll(tmpDir)
 
 	c := make(chan EventInfo, 100)
 	first := filepath.Join(tmpDir, "foo")
@@ -150,11 +153,13 @@ func TestRenameInRoot(t *testing.T) {
 }
 
 func TestRecreated(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "notify_test-")
+	// was: ioutil.TempDir() (syncthing)
+	// was: t.TempDir() (rjeczalik)
+	tmpDir, err := tempDir("", "notify_test-")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	// handled by setup/teardown now: defer os.RemoveAll(tmpDir)
 
 	dir := filepath.Join(tmpDir, "folder")
 	file := filepath.Join(dir, "file")

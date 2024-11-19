@@ -36,6 +36,25 @@ func init() {
 	}
 }
 
+func TestMain(m *testing.M) {
+	setup()
+
+	exitCode := m.Run()
+
+	teardown()
+
+	os.Exit(exitCode)
+}
+
+func setup() {
+	useEraseDirIfSet(true)
+	cleanEraseDir()
+}
+
+func teardown() {
+	cleanEraseDir()
+}
+
 func timeout() time.Duration {
 	if s := os.Getenv("NOTIFY_TIMEOUT"); s != "" {
 		if t, err := time.ParseDuration(s); err == nil {
@@ -105,7 +124,7 @@ func tmptree(root, list string) (string, error) {
 	}
 	defer f.Close()
 	if root == "" {
-		if root, err = ioutil.TempDir(vfs()); err != nil {
+		if root, err = tempDir(vfs()); err != nil {
 			return "", err
 		}
 	}
@@ -297,7 +316,8 @@ func (w *W) timeout() time.Duration {
 }
 
 func (w *W) Close() error {
-	defer os.RemoveAll(w.root)
+	// was: defer os.RemoveAll()
+	defer cleanDir(w.root)
 	if err := w.watcher().Close(); err != nil {
 		w.Fatalf("w.Watcher.Close()=%v", err)
 	}
@@ -773,7 +793,8 @@ func (n *N) W() *W {
 }
 
 func (n *N) Close() error {
-	defer os.RemoveAll(n.w.root)
+	// was: defer os.RemoveAll()
+	defer cleanDir(n.w.root)
 	if err := n.tree.Close(); err != nil {
 		n.w.Fatalf("(notifier).Close()=%v", err)
 	}
@@ -964,4 +985,209 @@ func (n *N) Walk(fn walkFunc) {
 	default:
 		n.t.Fatal("unknown tree type")
 	}
+}
+
+var eraseDirFlag bool = false
+
+func useEraseDirIfSet(use bool) {
+	eraseDirFlag = use
+}
+
+func usingEraseDir() bool {
+	return eraseDirFlag
+}
+
+func getEraseDir() string {
+	if !eraseDirFlag {
+		return ""
+	}
+
+	tempDir := os.Getenv("NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR")
+	if tempDir == "" {
+		return ""
+	}
+
+	tempDir = normalize(tempDir)
+	if !exists(tempDir) {
+		panic("Directory not found: " + tempDir)
+	}
+	dir, err := filepath.EvalSymlinks(tempDir)
+	if err != nil {
+		panic("Cannot read directory " + tempDir + ": " + err.Error())
+	}
+	if !exists(dir) {
+		panic("Directory not found: " + dir + " (" + tempDir + ")")
+	}
+	dir = normalize(dir)
+	vol := volumeName(dir)
+	vol = normalize(vol)
+	if runtime.GOOS == "windows" {
+		c := os.Getenv("SystemDrive")
+		if c == "" {
+			panic("Variable not found: SystemDrive")
+		}
+		cvol := volumeName(c)
+		if cvol == vol {
+			panic("Cannot use '" + tempDir + "' as the temporary directory as it's on the drive as SystemDrive " + cvol)
+		}
+		home, err := os.UserHomeDir()
+		if err != nil {
+			panic(err.Error())
+		}
+		hvol := volumeName(home)
+		if hvol == vol {
+			panic("Cannot use '" + tempDir + "' as the temporary directory as it's on the same drive as " + home)
+		}
+	} else {
+		if dir == vol {
+			if !exists("/.dockerenv") {
+				panic("Cannot use '" + tempDir + "' as the temporary directory in a non-docker environment")
+			}
+		}
+	}
+	return tempDir
+}
+
+func tempDir(dir, pattern string) (string, error) {
+	eraseDir := getEraseDir()
+	if eraseDir != "" {
+		return eraseDir, nil
+	}
+	return ioutil.TempDir(dir, pattern)
+}
+
+func tempFile(dir, pattern string) (*os.File, error) {
+	eraseDir := getEraseDir()
+	if eraseDir != "" {
+		dir = eraseDir
+	}
+	return ioutil.TempFile(dir, pattern)
+}
+
+func cleanDir(dir string) error {
+	eraseDir := getEraseDir()
+	if eraseDir == "" {
+		return os.RemoveAll(dir)
+	}
+
+	if !strings.HasPrefix(dir, eraseDir) {
+		return os.RemoveAll(dir)
+	}
+
+	_, err := removeDeletables(eraseDir, false)
+	return err
+}
+
+func removeDeletables(dir string, deleteSelf bool) (bool, error) {
+	delete, err := isDeletable(dir)
+	if err != nil {
+		return false, err
+	}
+	if !delete {
+		return false, nil
+	}
+
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return false, err
+	}
+
+	for _, file := range files {
+		path := filepath.Join(dir, file.Name())
+
+		if file.IsDir() {
+			ok, err := removeDeletables(path, true)
+			if err != nil {
+				return false, err
+			}
+			if !ok {
+				deleteSelf = false
+			}
+		} else {
+			ok, err := removeDeletable(path)
+			if err != nil {
+				return false, err
+			}
+			if !ok {
+				deleteSelf = false
+			}
+		}
+	}
+
+	if !deleteSelf {
+		return false, nil
+	}
+	return removeDeletable(dir)
+}
+
+func isDeletable(path string) (bool, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false, fmt.Errorf("failed to stat %q: %w", path, err)
+	}
+
+	if fi.Mode()&0o200 == 0 {
+		return false, nil
+	}
+
+	if runtime.GOOS == "windows" {
+		return true, nil
+	}
+
+	uid, err := GetFileUid(path)
+	if err != nil {
+		return false, fmt.Errorf("failed to get UID for %q: %w", path, err)
+	}
+
+	return uid == os.Getuid(), nil
+}
+
+func removeDeletable(path string) (bool, error) {
+	delete, err := isDeletable(path)
+	if err != nil {
+		return false, err
+	}
+	if !delete {
+		return false, nil
+	}
+	err = os.Remove(path)
+	return err == nil, err
+}
+
+func cleanEraseDir() error {
+	eraseDir := getEraseDir()
+	if eraseDir == "" {
+		return nil
+	}
+	_, err := removeDeletables(eraseDir, false)
+	return err
+}
+
+func exists(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		return true
+	}
+	return false
+}
+
+func normalize(path string) string {
+	path = filepath.Clean(path)
+	if runtime.GOOS != "windows" {
+		return path
+	}
+
+	if strings.HasSuffix(path, ":.") {
+		path = path[:len(path)-1]
+	}
+	if strings.HasSuffix(path, ":") {
+		path += `\`
+	}
+	return path
+}
+
+func volumeName(path string) string {
+	if runtime.GOOS == "windows" {
+		return filepath.VolumeName(path)
+	}
+	return "/"
 }

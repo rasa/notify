@@ -95,3 +95,16 @@ jobs:
             export TAGS+=" kqueue"
           fi
           go test -v -tags "${TAGS}" ./...
+
+      - name: Run NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR test on Windows
+        if: contains(matrix.runner, 'windows')
+        shell: cmd
+        continue-on-error: true
+        run: |
+          go version
+          if "${{ inputs.notify_debug }}" == "Yes" set NOTIFY_DEBUG=1
+          if not "${{ inputs.tags }}" == "" set "TAGS=${{ inputs.tags }}"
+          mkdir tmp
+          subst.exe Z: "%CD%\tmp"
+          set NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR=Z:\
+          go test -v -tags "%TAGS%" ./...

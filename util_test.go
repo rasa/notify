@@ -15,6 +15,7 @@ type caseCanonical struct {
 }
 
 func testCanonical(t *testing.T, cases []caseCanonical) {
+	t.Helper()
 	for i, cas := range cases {
 		full, err := canonical(cas.path)
 		if err != nil {
