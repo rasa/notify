@@ -85,13 +85,14 @@ jobs:
               curl -OL "${url}"
               mkdir tmp
               tar -C tmp -xzf "${gz}"
-              pushd tmp/go/src
+              cd tmp/go/src
               ./all.bash
-              popd
+              cd ~
               export PATH="${HOME}/go/bin:${PATH}"
 
               go version
               go env
+
               go get -v ./...
 
               if [ "${{ inputs.notify_debug }}" == Yes ]; then
