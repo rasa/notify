@@ -79,8 +79,9 @@ jobs:
 
               uname -a
               whoami
+              pwd
               env | sort
-              ls -al ~
+              ls -alh
 
               arch="${{ matrix.os.architecture }}"
               if [[ "${arch}" =~ (x86-64|x64) ]]; then
@@ -88,14 +89,17 @@ jobs:
               fi
               url="https://go.dev/dl/go${{ matrix.go }}.${{ matrix.os.name }}-${arch}.tar.gz"
               gz="$(basename "${url}")"
-              cd ~
+              pushd ~
               curl -sOL "${url}"
               tar -xzf "${gz}"
               rm -f "${gz}"
+              popd
               export PATH="${HOME}/go/bin:${PATH}"
 
               go version
               go env
+
+              cd "${GITHUB_WORKSPACE}"
 
               go get -v ./...
 
