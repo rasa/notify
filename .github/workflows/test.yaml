@@ -84,7 +84,7 @@ jobs:
 
       - name: Run tests
         shell: bash
-        continue-on-error: true
+        # continue-on-error: true
         run: |
           go version
           if [[ "${{ inputs.notify_debug }}" =~ Yes ]]; then
@@ -99,7 +99,7 @@ jobs:
       - name: Run NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR test on Windows
         if: contains(matrix.runner, 'windows')
         shell: cmd
-        continue-on-error: true
+        # continue-on-error: true
         run: |
           go version
           if "${{ inputs.notify_debug }}" == "Yes" set NOTIFY_DEBUG=1
