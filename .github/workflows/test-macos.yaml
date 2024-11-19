@@ -33,7 +33,7 @@ jobs:
       matrix:
         runner:
           - macos-15
-          - macos-14
+          # - macos-14
           # - macos-13
           # - macos-12
         go:

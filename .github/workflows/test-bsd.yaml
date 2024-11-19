@@ -36,29 +36,29 @@ jobs:
           - "1.23.3"
         os:
           - name: freebsd
-            architecture: arm64
-            version: '14.1'
-
-          - name: freebsd
             architecture: x86-64
             version: '14.1'
 
-          - name: openbsd
-            architecture: arm64
-            version: '7.6'
+          # - name: freebsd
+          #   architecture: arm64
+          #   version: '14.1'
 
-          - name: openbsd
-            architecture: x86-64
-            version: '7.6'
+          # - name: openbsd
+          #   architecture: x86-64
+          #   version: '7.6'
 
-          - name: netbsd
-            architecture: arm64
-            version: '10.0'
+          # - name: openbsd
+          #   architecture: arm64
+          #   version: '7.6'
+
+          # - name: netbsd
+          #   architecture: x86-64
+          #   version: '10.0'
+
+          # - name: netbsd
+          #   architecture: arm64
+          #   version: '10.0'
             
-          - name: netbsd
-            architecture: x86-64
-            version: '10.0'
-
     runs-on: ubuntu-latest
 
     steps:

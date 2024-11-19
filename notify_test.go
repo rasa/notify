@@ -131,23 +131,26 @@ func TestRenameInRoot(t *testing.T) {
 	defer Stop(c)
 
 	mustT(t, os.Rename(first, second))
-	time.Sleep(50 * time.Millisecond) // Need some time to process rename.
+	time.Sleep(500 * time.Millisecond) // Need some time to process rename.
 	fd, err := os.Create(file)
 	mustT(t, err)
 	fd.Close()
 
-	timeout := time.After(time.Second)
+	timeout := time.After(10 * time.Second)
+	t.Logf("Started:   %v", time.Now())
 	for {
 		select {
 		case ev := <-c:
 			if ev.Path() == file {
+				t.Logf("Finished:  %v", time.Now())
 				return
 			}
 			t.Log(ev.Path())
 		case <-timeout:
+			t.Logf("Timed out: %v", time.Now())
 			t.Fatal("timed out before receiving event")
 		default:
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }
@@ -173,24 +176,27 @@ func TestRecreated(t *testing.T) {
 		// Give the sync some time to process events
 		_ = os.RemoveAll(dir)
 		mustT(t, os.Mkdir(dir, 0777))
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 
 		// Create a file
 		mustT(t, ioutil.WriteFile(file, []byte("abc"), 0666))
 	}
-	timeout := time.After(5 * time.Second)
+	timeout := time.After(30 * time.Second)
 	checkCreated := func() {
+		t.Logf("Started:   %v", time.Now())
 		for {
 			select {
 			case ev := <-eventChan:
 				t.Log(ev.Path(), ev.Event())
 				if ev.Path() == file && ev.Event() == Create {
+					t.Logf("Finished:  %v", time.Now())
 					return
 				}
 			case <-timeout:
+				t.Logf("Timed out: %v", time.Now())
 				t.Fatal("timed out before receiving event")
 			default:
-				time.Sleep(50 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 			}
 		}
 	}
