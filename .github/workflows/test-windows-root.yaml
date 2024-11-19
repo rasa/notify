@@ -1,4 +1,4 @@
-name: test-root
+name: test-windows-root
 
 on:
   push:
@@ -26,8 +26,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-root:
-    name: test-root
+  test-windows-root:
+    name: test-windows-root
     strategy:
       fail-fast: false
       matrix:
