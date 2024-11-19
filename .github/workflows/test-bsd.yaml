@@ -88,9 +88,11 @@ jobs:
               fi
               url="https://go.dev/dl/go${{ matrix.go }}.${{ matrix.os.name }}-${arch}.tar.gz"
               gz="$(basename "${url}")"
+              cd ~
               curl -sOL "${url}"
-              tar -C /usr/local -xzf "${gz}"
-              export PATH="/usr/local/go/bin:${PATH}"
+              tar -xzf "${gz}"
+              rm -f "${gz}"
+              export PATH="${HOME}/go/bin:${PATH}"
 
               go version
               go env
