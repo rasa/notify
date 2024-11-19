@@ -32,15 +32,8 @@ jobs:
       fail-fast: false
       matrix:
         runner:
-          # - ubuntu-latest
-          # - ubuntu-22.04
-          # - ubuntu-20.04
           - windows-latest
           # - windows-2019
-          # - macos-15
-          # - macos-14
-          # - macos-13
-          # - macos-12
         go:
           # - "~1.22.9"
           - "~1.23.3"
@@ -80,17 +73,17 @@ jobs:
 
       - name: Install dependencies
         run: |
+          go version
+          go env
           go get -v ./...
 
       - name: Run NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR test on Windows
         if: contains(matrix.runner, 'windows')
         shell: cmd
-        # continue-on-error: true
         run: |
-          go version
           if "${{ inputs.notify_debug }}" == "Yes" set NOTIFY_DEBUG=1
-          if not "${{ inputs.tags }}" == "" set "TAGS=${{ inputs.tags }}"
+          set "TAGS=${{ inputs.tags }}"
           mkdir tmp
           subst.exe Z: "%CD%\tmp"
           set NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR=Z:\
-          go test -v -tags "%TAGS%" ./...
+          go test -v -tags %TAGS% ./...

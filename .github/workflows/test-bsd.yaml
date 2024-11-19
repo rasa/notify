@@ -73,28 +73,28 @@ jobs:
           operating_system: ${{ matrix.os.name }}
           architecture: ${{ matrix.os.architecture }}
           version: ${{ matrix.os.version }}
-        run: |
-            uname -a
-            echo "${SHELL}"
-            pwd
-            ls -lah
-            whoami
-            env | sort
+          run: |
+              uname -a
+              echo "${SHELL}"
+              pwd
+              ls -lah
+              whoami
+              env | sort
 
-            url=https://go.dev/dl/go${{ matrix.go }}.src.tar.gz
-            gz="$(basename "${url}")"
-            curl -OL "${url}"
-            mkdir tmp
-            tar -C tmp -xzf "${gz}"
-            cd tmp/src
-            ./all.bash
-            export PATH="${HOME}/go/bin:${PATH}"
-            go version
-            go env
+              url=https://go.dev/dl/go${{ matrix.go }}.src.tar.gz
+              gz="$(basename "${url}")"
+              curl -OL "${url}"
+              mkdir tmp
+              tar -C tmp -xzf "${gz}"
+              cd tmp/src
+              ./all.bash
+              export PATH="${HOME}/go/bin:${PATH}"
 
-            go get -v ./...
-            if [[ "${{ inputs.notify_debug }}" =~ Yes ]]; then
-              export NOTIFY_DEBUG=1
-            fi
-            export TAGS="${{ inputs.tags }}"
-            go test -v -tags "${TAGS}" ./...
+              go version
+              go env
+              go get -v ./...
+              if [[ "${{ inputs.notify_debug }}" =~ Yes ]]; then
+                export NOTIFY_DEBUG=1
+              fi
+              export TAGS="${{ inputs.tags }}"
+              go test -v -tags "${TAGS}" ./...

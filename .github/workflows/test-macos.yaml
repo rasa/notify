@@ -1,4 +1,4 @@
-name: test-macos-kqueue
+name: test-macos
 
 on:
   push:
@@ -26,8 +26,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-macos-kqueue:
-    name: test-macos-kqueue
+  test-macos:
+    name: test-macos
     strategy:
       fail-fast: false
       matrix:
@@ -71,7 +71,4 @@ jobs:
             export NOTIFY_DEBUG=1
           fi
           export TAGS="${{ inputs.tags }}"
-          if [[ "${{ matrix.runner }}" =~ macos* ]]; then
-            export TAGS+=" kqueue"
-          fi
           go test -v -tags "${TAGS}" ./...
