@@ -40,8 +40,6 @@ func TestWatcher(t *testing.T) {
 // is removed. This is detected and the watch removed. Then the directory is
 // restored and a new watch set up.
 func TestStopPathNotExists(t *testing.T) {
-	useEraseDirIfSet(false)
-
 	w := NewWatcherTest(t, "testdata/vfs.txt")
 	defer w.Close()
 
