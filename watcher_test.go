@@ -51,9 +51,9 @@ func TestStopPathNotExists(t *testing.T) {
 	// Don't check the returned error, as the public function (notify.Stop)
 	// does not return a potential error. As long as everything later on
 	// works as inteded, that's fine
-	time.Sleep(time.Duration(100) * time.Millisecond)
+	time.Sleep(time.Duration(1000) * time.Millisecond) // was 100 -@rasa
 	w.Watcher.Unwatch(w.root)
-	time.Sleep(time.Duration(100) * time.Millisecond)
+	time.Sleep(time.Duration(1000) * time.Millisecond) // was 100 -@rasa
 
 	if err := os.Mkdir(w.root, 0777); err != nil {
 		panic(err)

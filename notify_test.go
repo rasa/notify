@@ -131,12 +131,12 @@ func TestRenameInRoot(t *testing.T) {
 	defer Stop(c)
 
 	mustT(t, os.Rename(first, second))
-	time.Sleep(500 * time.Millisecond) // Need some time to process rename.
+	time.Sleep(500 * time.Millisecond) // Need some time to process rename. // was 50 -@rasa
 	fd, err := os.Create(file)
 	mustT(t, err)
 	fd.Close()
 
-	timeout := time.After(10 * time.Second)
+	timeout := time.After(10 * time.Second) // was 1 -@rasa
 	t.Logf("Started:   %v", time.Now())
 	for {
 		select {
@@ -176,12 +176,12 @@ func TestRecreated(t *testing.T) {
 		// Give the sync some time to process events
 		_ = os.RemoveAll(dir)
 		mustT(t, os.Mkdir(dir, 0777))
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond) // was 100 -@rasa
 
 		// Create a file
 		mustT(t, ioutil.WriteFile(file, []byte("abc"), 0666))
 	}
-	timeout := time.After(30 * time.Second)
+	timeout := time.After(30 * time.Second) // was 5 -@rasa
 	checkCreated := func() {
 		t.Logf("Started:   %v", time.Now())
 		for {

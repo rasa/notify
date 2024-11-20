@@ -439,7 +439,7 @@ func write(w *W, path string, p []byte) WCase {
 }
 
 func drainall(c chan EventInfo) (ei []EventInfo) {
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond) // was 50 - @rasa
 	for {
 		select {
 		case e := <-c:
