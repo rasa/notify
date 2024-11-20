@@ -35,12 +35,6 @@ jobs:
           - ubuntu-latest
           - ubuntu-22.04
           # - ubuntu-20.04
-          - windows-latest
-          - windows-2019
-          # - macos-15
-          # - macos-14
-          # - macos-13
-          # - macos-12
         go:
           # - "~1.22.9"
           - "~1.23.3"
@@ -48,16 +42,6 @@ jobs:
     runs-on: ${{ matrix.runner }}
 
     steps:
-      - name: If Windows, set git to use LF
-        if: contains(matrix.runner, 'windows')
-        # Without this, the Windows checkout will happen with CRLF line
-        # endings, which is fine for the source code but messes up tests
-        # that depend on data on disk being as expected. Ideally, those
-        # tests should be fixed, but not today.
-        run: |
-          git config --global core.autocrlf false
-          git config --global core.eol lf
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -67,11 +51,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-
-      # - name: Setup Golang with cache
-      #   uses: magnetikonline/action-golang-cache@v5
-      #   with:
-      #     go-version: ${{ matrix.go }}
 
       - name: Install dependencies
         run: |

@@ -1,4 +1,4 @@
-name: test-macos
+name: test
 
 on:
   push:
@@ -26,16 +26,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-macos:
-    name: test-macos
+  test:
+    name: test
     strategy:
       fail-fast: false
       matrix:
         runner:
-          - macos-15
-          # - macos-14
-          # - macos-13
-          # - macos-12
+          - windows-latest
+          - windows-2019
         go:
           # - "~1.22.9"
           - "~1.23.3"
@@ -43,6 +41,16 @@ jobs:
     runs-on: ${{ matrix.runner }}
 
     steps:
+      - name: If Windows, set git to use LF
+        if: contains(matrix.runner, 'windows')
+        # Without this, the Windows checkout will happen with CRLF line
+        # endings, which is fine for the source code but messes up tests
+        # that depend on data on disk being as expected. Ideally, those
+        # tests should be fixed, but not today.
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
