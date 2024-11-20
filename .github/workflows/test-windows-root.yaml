@@ -51,11 +51,6 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.eol lf
 
-      # - name: If macOS, use kqueue tag
-      #   if: contains(matrix.runner, 'macos')
-      #   run: |
-      #     echo 'GOTAGS="kqueue"' >> "${GITHUB_ENV}"
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -65,12 +60,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-
-      # - name: Setup Golang with cache
-      #   uses: magnetikonline/action-golang-cache@v5
-      #   with:
-      #     go-version: ${{ matrix.go }}
-
+  
       - name: Install dependencies
         run: |
           go version
