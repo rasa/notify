@@ -987,7 +987,7 @@ func (n *N) Walk(fn walkFunc) {
 	}
 }
 
-var eraseDirFlag bool = false
+var eraseDirFlag = false
 
 func useEraseDirIfSet(use bool) {
 	eraseDirFlag = use
@@ -1143,11 +1143,11 @@ func isDeletable(path string) (bool, error) {
 }
 
 func removeDeletable(path string) (bool, error) {
-	delete, err := isDeletable(path)
+	deletable, err := isDeletable(path)
 	if err != nil {
 		return false, err
 	}
-	if !delete {
+	if !deletable {
 		return false, nil
 	}
 	err = os.Remove(path)
