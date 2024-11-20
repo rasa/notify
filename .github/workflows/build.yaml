@@ -63,11 +63,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-
-      # - name: Setup Golang with cache
-      #   uses: magnetikonline/action-golang-cache@v5
-      #   with:
-      #     go-version: ${{ matrix.go }}
+          cache: true
 
       - name: Install dependencies
         run: |
