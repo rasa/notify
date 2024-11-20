@@ -1,4 +1,4 @@
-name: test
+name: test-linux
 
 on:
   push:
@@ -26,8 +26,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: test
+  test-linux:
+    name: test-linux
     strategy:
       fail-fast: false
       matrix:

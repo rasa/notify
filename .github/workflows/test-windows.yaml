@@ -1,4 +1,4 @@
-name: test
+name: test-windows
 
 on:
   push:
@@ -26,8 +26,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: test
+  test-windows:
+    name: test-windows
     strategy:
       fail-fast: false
       matrix:
