@@ -25,12 +25,12 @@ jobs:
       fail-fast: false
       matrix:
         runner:
-          - ubuntu-latest
-          # - windows-latest
-          # - macos-15
+          - ubuntu-24.04
+          - windows-2025
+          - macos-15
         go:
-          # - "~1.22.9"
-          - "~1.23.3"
+          - "~1.23.6"
+          - "~1.24.0"
 
     runs-on: ${{ matrix.runner }}
 
