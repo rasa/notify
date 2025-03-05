@@ -1134,7 +1134,7 @@ func isDeletable(path string) (bool, error) {
 		return true, nil
 	}
 
-	uid, err := GetFileUid(path)
+	uid, err := GetFileUID(path)
 	if err != nil {
 		return false, fmt.Errorf("failed to get UID for %q: %w", path, err)
 	}
