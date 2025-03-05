@@ -1,3 +1,5 @@
+# trying to debug/fix https://github.com/syncthing/syncthing/issues/7944
+
 name: test-windows-root
 
 on:
