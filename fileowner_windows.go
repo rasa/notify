@@ -7,6 +7,6 @@ import (
 	"os"
 )
 
-func GetFileUid(path string) (int, error) {
+func GetFileUID(path string) (int, error) {
 	return os.Getuid(), nil
 }
