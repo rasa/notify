@@ -10,7 +10,7 @@ import (
 	"syscall"
 )
 
-func GetFileUid(path string) (int, error) {
+func GetFileUID(path string) (int, error) {
 	stat, err := os.Stat(path)
 	if err != nil {
 		return -1, err
