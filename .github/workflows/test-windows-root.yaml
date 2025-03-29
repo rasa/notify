@@ -69,13 +69,17 @@ jobs:
           go env
           go get -v ./...
 
+      - run: ./.github/scripts/create-ramdisk.ps1
+        if: contains(matrix.runner, 'windows')
+        shell: pwsh
+
       - name: Run NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR test on Windows
         if: contains(matrix.runner, 'windows')
         shell: cmd
         run: |
           if "${{ inputs.notify_debug }}" == "Yes" set NOTIFY_DEBUG=1
           set "TAGS=${{ inputs.tags }}"
-          mkdir tmp
-          subst.exe Z: "%CD%\tmp"
-          set NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR=Z:\
+          :: mkdir tmp
+          :: subst.exe Z: "%CD%\tmp"
+          set NOTIFY_WILL_ERASE_ALL_FILES_IN_DIR=R:\
           go test -v -tags %TAGS% ./...
