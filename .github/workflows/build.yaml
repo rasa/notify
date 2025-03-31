@@ -51,7 +51,7 @@ jobs:
           brew update
           brew install bash
           if ! grep -q /usr/local/bin <<<"${PATH}"; then
-            echo "export PATH="/usr/local/bin:${PATH}"" "${GITHUB_ENV}"
+            echo '/usr/local/bin' >>"${GITHUB_PATH}"
           fi
 
       - name: Checkout code
@@ -65,8 +65,7 @@ jobs:
           go-version: ${{ matrix.go }}
 
       - name: Install dependencies
-        run: |
-          go get -v ./...
+        run: go mod download
 
       - name: Build
         shell: bash
