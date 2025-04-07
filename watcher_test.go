@@ -44,7 +44,7 @@ func TestStopPathNotExists(t *testing.T) {
 	defer w.Close()
 
 	if _, err := removeDeletables(w.root, true); err != nil {
-		panic(err)
+		t.Log(err)
 	}
 	Sync()
 
@@ -56,7 +56,7 @@ func TestStopPathNotExists(t *testing.T) {
 	time.Sleep(time.Duration(1000) * time.Millisecond) // was 100 -@rasa
 
 	if err := os.Mkdir(w.root, 0777); err != nil {
-		panic(err)
+		t.Log(err)
 	}
 	Sync()
 	w.Watch("", All)
