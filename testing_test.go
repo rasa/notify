@@ -1121,6 +1121,13 @@ func removeDeletables(dir string, deleteSelf bool) (bool, error) {
 }
 
 func isDeletable(path string) (bool, error) {
+	if runtime.GOOS == "windows" {
+		_, base = filepath.Split(path)
+		base = strings.ToLower(base)
+		if strings.Contains(base, "system volume information") || strings.Contains(base, "$recycle.bin") {
+			return true, nil
+		}
+	}
 	fi, err := os.Stat(path)
 	if err != nil {
 		return false, fmt.Errorf("failed to stat %q: %w", path, err)
