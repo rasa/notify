@@ -43,7 +43,7 @@ func TestStopPathNotExists(t *testing.T) {
 	w := NewWatcherTest(t, "testdata/vfs.txt")
 	defer w.Close()
 
-	if err := os.RemoveAll(w.root); err != nil {
+	if err := removeDeletables(w.root, true); err != nil {
 		panic(err)
 	}
 	Sync()
