@@ -1125,7 +1125,7 @@ func isDeletable(path string) (bool, error) {
 		_, base := filepath.Split(path)
 		base = strings.ToLower(base)
 		if strings.Contains(base, "system volume information") || strings.Contains(base, "$recycle.bin") {
-			return true, nil
+			return false, nil
 		}
 	}
 	fi, err := os.Stat(path)
